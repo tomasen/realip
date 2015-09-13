@@ -36,13 +36,13 @@ func ipAddrFromRemoteAddr(s string) string {
 	return s[:idx]
 }
 
-// return client's real public IP address 
-// from http request headers
+// RealIP return client's real public IP address 
+// from http request headers.
 func RealIP(r *http.Request) string {
 	hdr := r.Header
-	hdrRealIp := hdr.Get("X-Real-Ip")
+	hdrRealIP := hdr.Get("X-Real-Ip")
 	hdrForwardedFor := hdr.Get("X-Forwarded-For")
-	if len(hdrRealIp) == 0 && len(hdrForwardedFor) == 0 {
+	if len(hdrRealIP) == 0 && len(hdrForwardedFor) == 0 {
 		return ipAddrFromRemoteAddr(r.RemoteAddr)
 	}
 	if hdrForwardedFor != "" {
@@ -59,5 +59,5 @@ func RealIP(r *http.Request) string {
 			return parts[0]
 		}
 	}
-	return hdrRealIp
+	return hdrRealIP
 }
