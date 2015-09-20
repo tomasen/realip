@@ -1,6 +1,6 @@
 a golang library that can get client's real public ip address from http request headers
 
-[![Build Status](https://travis-ci.org/Tomasen/realip.svg?branch=master)](https://travis-ci.org/Tomasen/realip)
+[![Build Status](https://travis-ci.org/tomasen/realip.svg?branch=master)](https://travis-ci.org/Tomasen/realip)
 [![GoDoc](https://godoc.org/github.com/Tomasen/realip?status.svg)](http://godoc.org/github.com/Tomasen/realip)
 
 
