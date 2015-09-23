@@ -31,3 +31,18 @@ func TestIsLocalAddr(t *testing.T) {
 		}
 	}
 }
+
+func TestIpAddrFromRemoteAddr(t *testing.T) {
+	testData := map[string]string{
+		"127.0.0.1:8888": "127.0.0.1",
+		"ip:port":        "ip",
+		"ip":             "ip",
+		"12:34::0":       "12:34:",
+	}
+
+	for remoteAddr, expectedAddr := range testData {
+		if actualAddr := ipAddrFromRemoteAddr(remoteAddr); actualAddr != expectedAddr {
+			t.Errorf("ipAddrFromRemoteAddr of %s should be %s but get %s", remoteAddr, expectedAddr, actualAddr)
+		}
+	}
+}
