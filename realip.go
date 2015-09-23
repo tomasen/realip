@@ -52,25 +52,19 @@ func ipAddrFromRemoteAddr(s string) string {
 func RealIP(r *http.Request) string {
 	hdr := r.Header
 	hdrRealIP := hdr.Get("X-Real-Ip")
-	hdrForwardedFor := hdr.Get("X-Forwarded-For")
-	if len(hdrRealIP) == 0 && len(hdrForwardedFor) == 0 {
+	hdrForwardedFor := strings.Replace(hdr.Get("X-Forwarded-For"), " ", "", -1)
+
+	if len(hdrForwardedFor)+len(hdrRealIP) <= 0 {
 		return ipAddrFromRemoteAddr(r.RemoteAddr)
 	}
-	if hdrForwardedFor != "" {
-		// X-Forwarded-For is potentially a list of addresses separated with ","
-		parts := strings.Split(hdrForwardedFor, ",")
-		//filter local address
-		newParts := []string{}
-		for _, p := range parts {
-			p = strings.TrimSpace(p)
-			if isLocalAddress(p) {
-				continue
-			}
-			newParts = append(newParts, p)
-		}
-		if len(newParts) > 0 {
-			return newParts[0]
+
+	// X-Forwarded-For is potentially a list of addresses separated with ","
+	for _, addr := range strings.Split(hdrForwardedFor, ",") {
+		// return first non-local address
+		if len(addr) > 0 && !isLocalAddress(addr) {
+			return addr
 		}
 	}
+
 	return hdrRealIP
 }
