@@ -1,6 +1,10 @@
 package realip
 
-import "testing"
+import (
+	"net/http"
+	"strings"
+	"testing"
+)
 
 func TestIsLocalAddr(t *testing.T) {
 	testData := map[string]bool{
@@ -43,6 +47,40 @@ func TestIpAddrFromRemoteAddr(t *testing.T) {
 	for remoteAddr, expectedAddr := range testData {
 		if actualAddr := ipAddrFromRemoteAddr(remoteAddr); actualAddr != expectedAddr {
 			t.Errorf("ipAddrFromRemoteAddr of %s should be %s but get %s", remoteAddr, expectedAddr, actualAddr)
+		}
+	}
+}
+
+func TestRealIP(t *testing.T) {
+	newRequest := func(remoteAddr, hdrRealIP, hdrForwardedFor string) *http.Request {
+		h := http.Header{}
+		h["X-Real-Ip"] = []string{hdrRealIP}
+		h["X-Forwarded-For"] = []string{hdrForwardedFor}
+		return &http.Request{
+			RemoteAddr: remoteAddr,
+			Header:     h,
+		}
+	}
+
+	remoteAddr := "144.12.54.87"
+	anotherRemoteAddr := "119.14.55.11"
+	localAddr := "127.0.0.0"
+
+	testData := []struct {
+		expected string
+		request  *http.Request
+	}{
+		{remoteAddr, newRequest(remoteAddr, "", "")}, // no header
+		{remoteAddr, newRequest("", "", remoteAddr)}, // X-Forwarded-For: remoteAddr
+		{remoteAddr, newRequest("", remoteAddr, "")}, // X-RealIP: remoteAddr
+
+		// X-Forwarded-For: localAddr, remoteAddr, anotherRemoteAddr
+		{remoteAddr, newRequest("", "", strings.Join([]string{localAddr, remoteAddr, anotherRemoteAddr}, ", "))},
+	}
+
+	for _, v := range testData {
+		if actual := RealIP(v.request); v.expected != actual {
+			t.Errorf("expected %s but get %s", v.expected, actual)
 		}
 	}
 }
