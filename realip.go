@@ -49,7 +49,7 @@ func RealIP(r *http.Request) string {
 		// X-Forwarded-For is potentially a list of addresses separated with ","
 		parts := strings.Split(hdrForwardedFor, ",")
 		//filter local address
-		newParts := make([]string, 0)
+		newParts := []string{}
 		for _, p := range parts {
 			p = strings.TrimSpace(p)
 			if isLocalAddress(p) {
