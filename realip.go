@@ -7,22 +7,33 @@ import (
 	"strings"
 )
 
-var lancidrs = []string{
-	"127.0.0.1/8", "10.0.0.0/8", "169.254.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "::1/128", "fc00::/7",
+var cidrs []*net.IPNet
+
+func init() {
+	lancidrs := []string{
+		"127.0.0.1/8", "10.0.0.0/8", "169.254.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "::1/128", "fc00::/7",
+	}
+
+	cidrs = make([]*net.IPNet, len(lancidrs))
+
+	for i, it := range lancidrs {
+		_, cidrnet, err := net.ParseCIDR(it)
+		if err != nil {
+			log.Fatalf("ParseCIDR error: %v", err) // assuming I did it right above
+		}
+
+		cidrs[i] = cidrnet
+	}
 }
 
 func isLocalAddress(addr string) bool {
-	for _, it := range lancidrs {
-		_, cidrnet, err := net.ParseCIDR(it)
-		if err != nil {
-			log.Println("ParseCIDR:", err) // assuming I did it right above
-			return false
-		}
+	for i := range cidrs {
 		myaddr := net.ParseIP(addr)
-		if cidrnet.Contains(myaddr) {
+		if cidrs[i].Contains(myaddr) {
 			return true
 		}
 	}
+
 	return false
 }
 
