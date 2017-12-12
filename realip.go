@@ -49,8 +49,8 @@ func isPrivateAddress(address string) (bool, error) {
 	return false, nil
 }
 
-// RealIP return client's real public IP address from http request headers.
-func RealIP(r *http.Request) string {
+// FromRequest return client's real public IP address from http request headers.
+func FromRequest(r *http.Request) string {
 	// Fetch header value
 	xRealIP := r.Header.Get("X-Real-Ip")
 	xForwardedFor := r.Header.Get("X-Forwarded-For")
@@ -81,4 +81,9 @@ func RealIP(r *http.Request) string {
 
 	// If nothing succeed, return X-Real-IP
 	return xRealIP
+}
+
+// RealIP is depreciated, use FromRequest instead
+func RealIP(r *http.Request) string {
+	return FromRequest(r)
 }

@@ -18,7 +18,7 @@ package main
 import "github.com/Tomasen/realip"
 
 func (h *Handler) ServeIndexPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	clientIP := realip.RealIP(r)
+	clientIP := realip.FromRequest(r)
 	log.Println("GET / from", clientIP)
 }
 ```
